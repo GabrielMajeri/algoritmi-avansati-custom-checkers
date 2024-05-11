@@ -19,10 +19,15 @@ def check(process_output, judge_output, **kwargs):
     judge_output = io.StringIO(judge_output.decode('utf-8'))
 
     # Read the Hamiltonian cycle defined in the expected test output file.
+    judge_output_lines = filter(lambda l: l != '', map(lambda l: l.strip(), judge_output))
     expected_cycle = [tuple(int(x) for x in line.split()) for line in judge_output]
 
     # Read the cycle the solution produced.
-    cycle = [tuple(int(x) for x in line.split()) for line in process_output]
+    process_output_lines = filter(lambda l: l != '', map(lambda l: l.strip(), process_output))
+    cycle = [tuple(int(x) for x in line.split()) for line in process_output_lines]
+
+    if len(expected_cycle) != len(cycle):
+        return CheckerResult(False, 0, f"solution contains {len(cycle)} nodes, expected {len(expected_cycle)} nodes")
 
     expected_cost = total_cost(expected_cycle)
     cost = total_cost(cycle)
